@@ -100,8 +100,8 @@
 
 - (void)close {
   [[self.window parentWindow] removeChildWindow:self.window];
-  self.window.delegate = nil;
   [self.window close];
+  self.window.delegate = nil;
 
   self.window = nil;
 }
