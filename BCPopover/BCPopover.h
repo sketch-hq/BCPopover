@@ -3,6 +3,8 @@
 #import <Cocoa/Cocoa.h>
 #import "BCPopoverDelegate.h"
 
+static NSString *const BCPopoverWillShowNotification = @"BCPopoverWillShowNotification";
+
 @interface BCPopover : NSObject <NSWindowDelegate>
 @property(nonatomic, strong) NSViewController *contentViewController;
 @property (nonatomic, weak) id<BCPopoverDelegate> delegate;

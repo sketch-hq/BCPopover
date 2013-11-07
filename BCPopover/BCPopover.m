@@ -13,9 +13,12 @@
 @implementation BCPopover
 
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge {
+  [[NSNotificationCenter defaultCenter] postNotificationName:BCPopoverWillShowNotification object:self];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(otherPopoverDidShow:) name:BCPopoverWillShowNotification object:nil];
+
   self.attachedToView = view;
   self.preferredEdge = edge;
-
+  
   NSView *contentView = self.contentViewController.view;
   self.window = [BCPopoverWindow attachedWindowWithView:contentView frame:[contentView frame]];
 
@@ -27,6 +30,12 @@
   self.window.delegate = self;
 
   [view.window addChildWindow:self.window ordered:NSWindowAbove];
+}
+
+- (void)otherPopoverDidShow:(NSNotification *)note {
+  id delegate = self.delegate;
+  if (![delegate respondsToSelector:@selector(popoverShouldCloseWhenOtherPopoverOpens:)] || [delegate popoverShouldCloseWhenOtherPopoverOpens:self])
+    [self close];
 }
 
 - (CGFloat)popoverArrowPosition {
