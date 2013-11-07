@@ -13,8 +13,9 @@
 @implementation BCPopover
 
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge {
-  [[NSNotificationCenter defaultCenter] postNotificationName:BCPopoverWillShowNotification object:self];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(otherPopoverDidShow:) name:BCPopoverWillShowNotification object:nil];
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center postNotificationName:BCPopoverWillShowNotification object:self];
+  [center addObserver:self selector:@selector(otherPopoverDidShow:) name:BCPopoverWillShowNotification object:nil];
 
   self.attachedToView = view;
   self.preferredEdge = edge;
@@ -113,6 +114,11 @@
   self.window.delegate = nil;
 
   self.window = nil;
+}
+
+- (void)dealloc {
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center removeObserver:self];
 }
 
 @end
