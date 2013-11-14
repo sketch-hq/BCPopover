@@ -12,6 +12,7 @@
   BCPopoverContentView *arrowView = [[BCPopoverContentView alloc] initWithFrame:[(NSView *)[window contentView] frame]];
   [window setContentView:arrowView];
   [aView setFrameOrigin:NSZeroPoint];
+  [window setAcceptsMouseMovedEvents:YES];
   [arrowView addSubview:aView];
 
   [[NSNotificationCenter defaultCenter] addObserver:window selector:@selector(contentViewDidResizeNotification:) name:NSViewFrameDidChangeNotification object:aView];
@@ -87,5 +88,9 @@
 - (BCPopoverContentView *)arrowView {
   return self.contentView;
 }
+
+//- (BOOL)acceptsMouseMovedEvents {
+//  return YES;
+//}
 
 @end
