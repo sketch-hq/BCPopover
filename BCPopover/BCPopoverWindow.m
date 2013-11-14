@@ -89,8 +89,4 @@
   return self.contentView;
 }
 
-//- (BOOL)acceptsMouseMovedEvents {
-//  return YES;
-//}
-
 @end
