@@ -16,6 +16,12 @@
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:BCPopoverWillShowNotification object:self];
   [center addObserver:self selector:@selector(otherPopoverDidShow:) name:BCPopoverWillShowNotification object:nil];
+  
+  NSView *aView = view;
+  while (aView != nil) {
+    [center addObserver:self selector:@selector(attachedViewDidMove:) name:NSViewFrameDidChangeNotification object:aView];
+    aView = [aView superview];
+  }
 
   self.attachedToView = view;
   self.preferredEdge = edge;
@@ -65,6 +71,10 @@
 - (void)windowDidResize:(NSNotification *)notification {
   [self.window setFrame:[self popoverWindowFrame] display:YES];
   [self.window setArrowPosition:[self popoverArrowPosition]];
+}
+
+- (void)attachedViewDidMove:(NSNotification *)notification {
+  [self.window setFrame:[self popoverWindowFrame] display:YES];
 }
 
 - (NSPoint)pointAtEdge:(NSRectEdge)edge ofRect:(NSRect)rect {
