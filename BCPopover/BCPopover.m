@@ -37,6 +37,7 @@
   self.window.delegate = self;
 
   [view.window addChildWindow:self.window ordered:NSWindowAbove];
+  [self.window makeKeyAndOrderFront:nil];
 }
 
 - (void)otherPopoverDidShow:(NSNotification *)note {
