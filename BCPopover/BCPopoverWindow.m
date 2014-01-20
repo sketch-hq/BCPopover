@@ -26,8 +26,14 @@
     [self setAlphaValue:1.0];
     [self setOpaque:NO];
     [self setHasShadow:YES];
+//    [self makeKeyWindow];
   }
   return self;
+}
+
+- (void)resignMainWindow {
+  [super resignMainWindow];
+  [self close];
 }
 
 - (void)contentViewDidResizeNotification:(NSNotification *)note {
@@ -54,6 +60,10 @@
 - (BOOL)canBecomeKeyWindow {
   return YES;
 }
+//
+//- (BOOL)canBecomeMainWindow {
+//  return YES;
+//}
 
 - (NSWindowCollectionBehavior)collectionBehavior {
   return [super collectionBehavior] | NSWindowCollectionBehaviorFullScreenAuxiliary;
