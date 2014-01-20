@@ -7,4 +7,5 @@
 + (id)attachedWindowWithView:(NSView *)aView frame:(NSRect)windowRect;
 @property (nonatomic) NSRectEdge arrowEdge;
 @property (nonatomic) CGFloat arrowPosition;
+@property(nonatomic) BOOL shouldShowArrow;
 @end

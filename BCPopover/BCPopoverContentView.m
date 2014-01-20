@@ -9,16 +9,15 @@
   [[NSColor clearColor] set];
   NSRectFill([self bounds]);
   
-  NSBezierPath *path = [self backgroundPath];
-  
-  NSColor *startColor  = [NSColor colorWithDeviceWhite:0.871 alpha:0.95];
-  NSColor *endColor    = [NSColor colorWithDeviceWhite:1.000 alpha:0.95];
-  NSGradient *gradient = [[NSGradient alloc] initWithColorsAndLocations:startColor, 0.0, endColor, 1.0, nil];
-  [gradient drawInBezierPath:path angle:90];
+  [[NSColor whiteColor] set];
+  [[self backgroundPath] fill];
 }
 
 - (NSRect)availableContentRect {
   NSRect contentRect = [self bounds];
+
+  if (!self.shouldShowArrow)
+    return NSInsetRect(contentRect, 0, 3);
   
   if (self.arrowEdge == NSMaxXEdge) {
     contentRect.origin.x    += kArrowSize;
@@ -37,10 +36,13 @@
 - (NSBezierPath *)backgroundPath {
   CGFloat radius = kCornerRadius;
   NSRect rect = [self availableContentRect];
-  
+
   if (NSEqualRects(NSZeroRect, rect))
     return nil;
-  
+
+  if (!self.shouldShowArrow)
+    return [NSBezierPath bezierPathWithRoundedRect:[self bounds] xRadius:radius yRadius:radius];
+
   CGFloat minX = NSMinX(rect);
   CGFloat maxX = NSMaxX(rect);
   CGFloat minY = NSMinY(rect);

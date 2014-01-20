@@ -4,12 +4,13 @@
 #import <Cocoa/Cocoa.h>
 
 #define kArrowSize 10
-#define kCornerRadius 6
+#define kCornerRadius 5
 
 @interface BCPopoverContentView : NSView
 
 @property (nonatomic) NSRectEdge arrowEdge;
 @property (nonatomic) CGFloat arrowPosition;
+@property (nonatomic) BOOL shouldShowArrow;
 
 - (NSRect)availableContentRect;
 @end

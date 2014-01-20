@@ -85,6 +85,19 @@
   }
 }
 
+@dynamic shouldShowArrow;
+
+- (BOOL)shouldShowArrow {
+  return self.arrowView.shouldShowArrow;
+}
+
+- (void)setShouldShowArrow:(BOOL)shouldShowArrow {
+  if (self.shouldShowArrow != shouldShowArrow) {
+    self.arrowView.shouldShowArrow = shouldShowArrow;
+    [self.arrowView setNeedsDisplay:YES];
+  }
+}
+
 - (BCPopoverContentView *)arrowView {
   return self.contentView;
 }
