@@ -7,7 +7,6 @@
 @interface BCPopover ()
 @property(nonatomic, strong) NSView *attachedToView;
 @property(nonatomic) NSRectEdge preferredEdge;
-@property(nonatomic, strong) BCPopoverWindow *window;
 @property(nonatomic) BCPopOverType popoverType;
 @end
 
@@ -72,11 +71,14 @@
 
 - (NSPoint)attachToPointInScreenCoordinates {
   NSRect screenRect = [self.attachedToView convertRect:[self.attachedToView bounds] toView:nil];
-  NSPoint point = [self.attachedToView.window convertBaseToScreen:[self pointAtEdge:self.preferredEdge ofRect:screenRect]];
-  return point;
+  return [self.attachedToView.window convertBaseToScreen:[self pointAtEdge:self.preferredEdge ofRect:screenRect]];
 }
 
 - (void)windowDidResize:(NSNotification *)notification {
+  NSLog(@"- - -");
+  CHLogRect(self.window.frame);
+  CHLogRect([self popoverWindowFrame]);
+  
   [self.window setFrame:[self popoverWindowFrame] display:YES];
   [self.window setArrowPosition:[self popoverArrowPosition]];
 }
