@@ -67,20 +67,35 @@
 }
 
 - (NSRect)popoverWindowFrame {
-  NSView *anchoredView = self.attachedToView.superview;
-  NSRect screenAnchorRect = [self.attachedToView.window convertRectToScreen:[anchoredView convertRect:anchoredView.bounds toView:nil]];
 
   NSPoint point = [self attachToPointInScreenCoordinates];
-  return [self windowRectForViewSize:[self.contentViewController.view frame].size above:screenAnchorRect pointingTo:point edge:self.preferredEdge];
+  return [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
+}
+
+- (NSRect)screenAnchorRect {
+  if (self.attachedToView) {
+    NSView *anchoredView = self.attachedToView.superview;
+    return [self.attachedToView.window convertRectToScreen:[anchoredView convertRect:anchoredView.bounds toView:nil]];
+  } else
+    return [self.window frame];
 }
 
 - (NSPoint)attachToPointInScreenCoordinates {
-  NSRect screenRect = [self.attachedToView convertRect:[self.attachedToView bounds] toView:nil];
-  return [self.attachedToView.window convertBaseToScreen:[self pointAtEdge:self.preferredEdge ofRect:screenRect]];
+  if (self.attachedToView) {
+    NSRect screenRect = [self.attachedToView convertRect:[self.attachedToView bounds] toView:nil];
+    return [self.attachedToView.window convertBaseToScreen:[self pointAtEdge:self.preferredEdge ofRect:screenRect]];
+  } else {
+    NSRect windowFrame = self.window.frame;
+    return NSMakePoint(NSMinX(windowFrame), NSMaxY(windowFrame));
+  }
 }
 
 - (void)attachedViewDidMove:(NSNotification *)notification {
   [self.window setFrame:[self popoverWindowFrame] display:YES];
+}
+
+- (void)detach {
+  self.attachedToView = nil;
 }
 
 - (NSPoint)pointAtEdge:(NSRectEdge)edge ofRect:(NSRect)rect {
@@ -125,6 +140,10 @@
   if (!NSEqualSizes(size, self.referenceContentSize)) {
     self.referenceContentSize = size;
     [self windowDidResize:nil];
+
+    id <BCPopoverDelegate> delegate = self.delegate;
+    if ([delegate respondsToSelector:@selector(popoverDidResize:)])
+      [delegate popoverDidResize:self];
   }
 }
 

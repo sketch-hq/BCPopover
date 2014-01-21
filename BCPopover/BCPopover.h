@@ -20,5 +20,6 @@ typedef NS_ENUM(NSUInteger, BCPopOverType) {
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge;
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge type:(BCPopOverType)type;
 - (void)close;
+- (void)detach;
 
 @end

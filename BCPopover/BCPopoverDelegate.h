@@ -8,4 +8,5 @@
 - (void)popoverWillClose:(BCPopover *)popover;
 @optional;
 - (BOOL)popoverShouldCloseWhenOtherPopoverOpens:(BCPopover *)popover;
+- (void)popoverDidResize:(BCPopover *)popover;
 @end
