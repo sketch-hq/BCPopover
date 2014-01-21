@@ -8,6 +8,7 @@
 @property(nonatomic, strong) NSView *attachedToView;
 @property(nonatomic) NSRectEdge preferredEdge;
 @property(nonatomic) BCPopOverType popoverType;
+@property(nonatomic) NSSize referenceContentSize;
 @end
 
 @implementation BCPopover
@@ -32,7 +33,11 @@
   self.popoverType = type;
   
   NSView *contentView = self.contentViewController.view;
-  self.window = [BCPopoverWindow attachedWindowWithView:contentView frame:[contentView frame]];
+  NSRect contentRect = [contentView frame];
+  if (type == BCPopOverTypeMenu)
+    contentRect = NSInsetRect(contentRect, 0, -3);
+  
+  self.window = [BCPopoverWindow attachedWindowWithView:contentView frame:contentRect];
 
   [self.window setFrame:[self popoverWindowFrame] display:YES];
   [self.window setReleasedWhenClosed:NO];
@@ -74,15 +79,6 @@
   return [self.attachedToView.window convertBaseToScreen:[self pointAtEdge:self.preferredEdge ofRect:screenRect]];
 }
 
-- (void)windowDidResize:(NSNotification *)notification {
-  NSLog(@"- - -");
-  CHLogRect(self.window.frame);
-  CHLogRect([self popoverWindowFrame]);
-  
-  [self.window setFrame:[self popoverWindowFrame] display:YES];
-  [self.window setArrowPosition:[self popoverArrowPosition]];
-}
-
 - (void)attachedViewDidMove:(NSNotification *)notification {
   [self.window setFrame:[self popoverWindowFrame] display:YES];
 }
@@ -114,19 +110,27 @@
     windowRect.origin.y     = point.y - viewSize.height/2;
     windowRect.size.width  += arrowSize;
   } else if (edge == NSMinYEdge) {
-    windowRect.size.height += arrowSize;
+    windowRect.size.height += isMenu ? arrowSize*2 : arrowSize;
     windowRect.origin.x     = isMenu ? NSMinX(aboveRect) : NSMidX(aboveRect) - viewSize.width/2;
     windowRect.origin.y     = isMenu ? point.y - arrowSize - viewSize.height - 2 : point.y - arrowSize - viewSize.height;
   } else if (edge == NSMaxYEdge) {
     windowRect.origin.x     = isMenu ? NSMinX(aboveRect) : NSMidX(aboveRect) - viewSize.width/2;
     windowRect.origin.y     = point.y;
-    windowRect.size.height += arrowSize;
+    windowRect.size.height += isMenu ? arrowSize*2 : arrowSize;;
   }
   return windowRect;
 }
 
 - (void)setContentSize:(NSSize)size {
-  //unnecessary but it keeps compatibility with NSPopOver
+  if (!NSEqualSizes(size, self.referenceContentSize)) {
+    self.referenceContentSize = size;
+    [self windowDidResize:nil];
+  }
+}
+
+- (void)windowDidResize:(NSNotification *)notification {
+  [self.window setFrame:[self popoverWindowFrame] display:YES];
+  [self.window setArrowPosition:[self popoverArrowPosition]];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {

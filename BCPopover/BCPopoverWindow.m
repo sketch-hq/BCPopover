@@ -26,7 +26,6 @@
     [self setAlphaValue:1.0];
     [self setOpaque:NO];
     [self setHasShadow:YES];
-//    [self makeKeyWindow];
   }
   return self;
 }
@@ -40,30 +39,24 @@
   if (!self.parentWindow)
     return;
 
-  if (self.shouldShowArrow) {
-    BCPopoverContentView *arrowView = self.contentView;
-    NSRect arrowFrame = [arrowView frame];
-    NSRect arrowAvailableRect = [arrowView availableContentRect];
+  BCPopoverContentView *arrowView = self.contentView;
+  NSRect arrowFrame = [arrowView frame];
+  NSRect arrowAvailableRect = [arrowView availableContentRect];
 
-    NSView *contentView = [[arrowView subviews] firstObject];
-    NSRect contentRect = [contentView frame];
-    contentRect.size.width += NSWidth(arrowFrame) - NSWidth(arrowAvailableRect);
-    contentRect.size.height += NSHeight(arrowFrame) - NSHeight(arrowAvailableRect);
+  NSView *contentView = [[arrowView subviews] firstObject];
+  NSRect contentRect = [contentView frame];
+  contentRect.size.width += NSWidth(arrowFrame) - NSWidth(arrowAvailableRect);
+  contentRect.size.height += NSHeight(arrowFrame) - NSHeight(arrowAvailableRect);
 
-    NSRect windowRect = [self frame];
-    windowRect.size = contentRect.size;
-    [self setFrame:windowRect display:YES];
-    [contentView setFrame:[arrowView availableContentRect]];
-  }
+  NSRect windowRect = [self frame];
+  windowRect.size = contentRect.size;
+  [self setFrame:windowRect display:YES];
+  [contentView setFrame:[arrowView availableContentRect]];
 }
 
 - (BOOL)canBecomeKeyWindow {
   return YES;
 }
-//
-//- (BOOL)canBecomeMainWindow {
-//  return YES;
-//}
 
 - (NSWindowCollectionBehavior)collectionBehavior {
   return [super collectionBehavior] | NSWindowCollectionBehaviorFullScreenAuxiliary;
