@@ -140,10 +140,6 @@
   if (!NSEqualSizes(size, self.referenceContentSize)) {
     self.referenceContentSize = size;
     [self windowDidResize:nil];
-
-    id <BCPopoverDelegate> delegate = self.delegate;
-    if ([delegate respondsToSelector:@selector(popoverDidResize:)])
-      [delegate popoverDidResize:self];
   }
 }
 
