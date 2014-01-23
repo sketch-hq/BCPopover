@@ -8,8 +8,8 @@
 - (void)drawRect:(NSRect)rect {
   [[NSColor clearColor] set];
   NSRectFill([self bounds]);
-  
-  [[NSColor whiteColor] set];
+
+  [[[NSColor whiteColor] colorWithAlphaComponent:0.95] set];
   [[self backgroundPath] fill];
 }
 
