@@ -7,7 +7,6 @@
 @interface BCPopover ()
 @property(nonatomic, strong) NSView *attachedToView;
 @property(nonatomic) NSRectEdge preferredEdge;
-@property(nonatomic) BCPopOverType popoverType;
 @property(nonatomic) NSSize referenceContentSize;
 @end
 

@@ -16,6 +16,7 @@ typedef NS_ENUM(NSUInteger, BCPopOverType) {
 @property (nonatomic, strong) NSViewController *contentViewController;
 @property (nonatomic, weak) id<BCPopoverDelegate> delegate;
 @property (nonatomic, strong) BCPopoverWindow *window;
+@property(nonatomic) BCPopOverType popoverType;
 
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge;
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge type:(BCPopOverType)type;
