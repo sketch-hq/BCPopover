@@ -52,7 +52,7 @@
 
 - (void)otherPopoverDidShow:(NSNotification *)note {
   id delegate = self.delegate;
-  if (![delegate respondsToSelector:@selector(popoverShouldCloseWhenOtherPopoverOpens:)] || [delegate popoverShouldCloseWhenOtherPopoverOpens:self])
+  if (![delegate respondsToSelector:@selector(popoverShouldCloseWhenOtherPopoverOpens:otherPopover:)] || [delegate popoverShouldCloseWhenOtherPopoverOpens:self otherPopover:[note object]])
     [self close];
 }
 
@@ -66,9 +66,11 @@
 }
 
 - (NSRect)popoverWindowFrame {
-
   NSPoint point = [self attachToPointInScreenCoordinates];
-  return [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
+  if (!NSEqualPoints(point, NSZeroPoint))
+    return [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
+  else
+    return NSZeroRect;
 }
 
 - (NSRect)screenAnchorRect {
@@ -82,7 +84,8 @@
 - (NSPoint)attachToPointInScreenCoordinates {
   if (self.attachedToView) {
     NSRect screenRect = [self.attachedToView convertRect:[self.attachedToView bounds] toView:nil];
-    return [self.attachedToView.window convertBaseToScreen:[self pointAtEdge:self.preferredEdge ofRect:screenRect]];
+    NSPoint pointAtEdge = [self pointAtEdge:self.preferredEdge ofRect:screenRect];
+    return [self.attachedToView.window convertBaseToScreen:pointAtEdge];
   } else {
     NSRect windowFrame = self.window.frame;
     return NSMakePoint(NSMinX(windowFrame), NSMaxY(windowFrame));
@@ -90,7 +93,9 @@
 }
 
 - (void)attachedViewDidMove:(NSNotification *)notification {
-  [self.window setFrame:[self popoverWindowFrame] display:YES];
+  NSRect popoverRect = [self popoverWindowFrame];
+  if (!NSEqualRects(popoverRect, NSZeroRect))
+    [self.window setFrame:popoverRect display:YES];
 }
 
 - (void)detach {
