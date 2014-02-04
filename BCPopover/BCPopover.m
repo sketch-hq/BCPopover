@@ -38,7 +38,12 @@
   
   self.window = [BCPopoverWindow attachedWindowWithView:contentView frame:contentRect];
 
-  [self.window setFrame:[self popoverWindowFrame] display:YES];
+  NSRect popoverWindowFrame = [self popoverWindowFrame];
+  id <BCPopoverDelegate> delegate = self.delegate;
+  if ([delegate respondsToSelector:@selector(popover:adjustInitialWindowFrame:)]) {
+    popoverWindowFrame = [delegate popover:self adjustInitialWindowFrame:popoverWindowFrame];
+  }
+  [self.window setFrame:popoverWindowFrame display:YES];
   [self.window setReleasedWhenClosed:NO];
   
   self.window.shouldShowArrow = type == BCPopOverTypePopOver;

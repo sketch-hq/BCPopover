@@ -9,4 +9,5 @@
 @optional;
 
 - (BOOL)popoverShouldCloseWhenOtherPopoverOpens:(BCPopover *)popover otherPopover:(BCPopover *)otherPopover;
+- (NSRect)popover:(BCPopover *)popover adjustInitialWindowFrame:(NSRect)frame;
 @end
