@@ -77,9 +77,13 @@
 
 - (NSRect)popoverWindowFrame {
   NSPoint point = [self attachToPointInScreenCoordinates];
-  if (!NSEqualPoints(point, NSZeroPoint))
-    return [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
-  else
+  if (!NSEqualPoints(point, NSZeroPoint)) {
+    NSRect windowRect =  [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
+    if (NSContainsRect([[NSScreen mainScreen] visibleFrame], windowRect))
+      return windowRect;
+    else
+      return NSIntersectionRect(windowRect, [[NSScreen mainScreen] visibleFrame]);
+  } else
     return NSZeroRect;
 }
 
