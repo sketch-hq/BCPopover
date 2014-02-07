@@ -3,6 +3,7 @@
 #import "BCPopover.h"
 #import "BCPopoverWindow.h"
 #import "BCPopoverContentView.h"
+#import "BCPopoverContentController.h"
 
 @interface BCPopover ()
 @property(nonatomic, strong) NSView *attachedToView;
@@ -53,6 +54,10 @@
 
   [view.window addChildWindow:self.window ordered:NSWindowAbove];
   [self.window makeKeyAndOrderFront:nil];
+
+  NSViewController <BCPopoverContentController> *controller = self.contentViewController;
+  if ([controller respondsToSelector:@selector(popoverWindowDidShow:)])
+    [controller popoverWindowDidShow:self];
 }
 
 - (void)otherPopoverDidShow:(NSNotification *)note {
