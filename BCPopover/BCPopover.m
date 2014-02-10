@@ -162,8 +162,10 @@
 }
 
 - (void)windowDidResize:(NSNotification *)notification {
-  [self.window setFrame:[self popoverWindowFrame] display:YES];
-  [self.window setArrowPosition:[self popoverArrowPosition]];
+//  NSLog(@"%@ --> %@", NSStringFromRect(self.window.frame), NSStringFromRect([self popoverWindowFrame]));
+//
+//  [self.window setFrame:[self popoverWindowFrame] display:YES];
+//  [self.window setArrowPosition:[self popoverArrowPosition]];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {

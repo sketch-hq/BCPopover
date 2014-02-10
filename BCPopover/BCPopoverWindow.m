@@ -51,6 +51,7 @@
   NSRect windowRect = [self frame];
   windowRect.size = contentRect.size;
   [self setFrame:windowRect display:YES];
+  
   [contentView setFrame:[arrowView availableContentRect]];
 }
 
