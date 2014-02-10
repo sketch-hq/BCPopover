@@ -24,4 +24,6 @@ typedef NS_ENUM(NSUInteger, BCPopOverType) {
 - (void)close;
 - (void)detach;
 
+- (NSRect)popoverWindowFrame;
+
 @end

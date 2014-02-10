@@ -3,6 +3,7 @@
 
 #import "BCPopoverWindow.h"
 #import "BCPopoverContentView.h"
+#import "BCPopover.h"
 
 @implementation BCPopoverWindow
 
@@ -47,10 +48,11 @@
   NSRect contentRect = [contentView frame];
   contentRect.size.width += NSWidth(arrowFrame) - NSWidth(arrowAvailableRect);
   contentRect.size.height += NSHeight(arrowFrame) - NSHeight(arrowAvailableRect);
-
+  
   NSRect windowRect = [self frame];
   windowRect.size = contentRect.size;
   [self setFrame:windowRect display:YES];
+  [self setFrame:[(id)self.delegate popoverWindowFrame] display:YES];
   
   [contentView setFrame:[arrowView availableContentRect]];
 }
