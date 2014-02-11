@@ -74,7 +74,7 @@
 - (void)otherPopoverDidShow:(NSNotification *)note {
   id delegate = self.delegate;
   BOOL delegateImplemented = [delegate respondsToSelector:@selector(popoverShouldCloseWhenOtherPopoverOpens:otherPopover:)];
-  BOOL delegateReturnedYes = [delegate popoverShouldCloseWhenOtherPopoverOpens:self otherPopover:[note object]];
+  BOOL delegateReturnedYes = delegateReturnedYes && [delegate popoverShouldCloseWhenOtherPopoverOpens:self otherPopover:[note object]];
   if (!delegateImplemented || delegateReturnedYes)
     [self close];
 }
