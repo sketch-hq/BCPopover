@@ -20,6 +20,19 @@
 
   self.window = [BCPopoverWindow attachedWindowWithView:self.contentViewController.view];
 
+  if ([self.contentViewController respondsToSelector:@selector(setMaximumAvailableHeight:forPopover:)]) {
+
+    NSRect rect = [self screenAnchorRect];
+    NSRect screenRect = [[NSScreen mainScreen] visibleFrame];
+    NSInteger maxAvailableHeight = 0;
+    if (self.preferredEdge == NSMinYEdge)
+      maxAvailableHeight = (NSInteger) NSMinY(rect);
+    else
+      maxAvailableHeight = (NSInteger) (NSMaxY(screenRect) - NSMaxY(rect));
+
+    [self.contentViewController setMaximumAvailableHeight:maxAvailableHeight forPopover:self];
+  }
+
   [self.window setFrame:[self popoverWindowFrame] display:YES];
   [self.window setReleasedWhenClosed:NO];
   
@@ -78,7 +91,7 @@
 - (NSRect)popoverWindowFrame {
   NSPoint point = [self attachToPointInScreenCoordinates];
   if (!NSEqualPoints(point, NSZeroPoint)) {
-    NSRect windowRect =  [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
+    NSRect windowRect = [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
     if (NSContainsRect([[NSScreen mainScreen] visibleFrame], windowRect))
       return windowRect;
     else
