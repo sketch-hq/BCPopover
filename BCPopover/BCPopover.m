@@ -8,46 +8,21 @@
 @interface BCPopover ()
 @property(nonatomic, strong) NSView *attachedToView;
 @property(nonatomic) NSRectEdge preferredEdge;
-@property(nonatomic) NSSize referenceContentSize;
 @end
 
 @implementation BCPopover
 
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge {
-  [self showRelativeToView:view preferredEdge:edge type:BCPopOverTypePopOver];
-}
-
-- (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge type:(BCPopOverType)type {
-  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-  [center postNotificationName:BCPopoverWillShowNotification object:self];
-  [center addObserver:self selector:@selector(otherPopoverDidShow:) name:BCPopoverWillShowNotification object:nil];
-  
-  NSView *aView = view;
-  while (aView != nil) {
-    [center addObserver:self selector:@selector(attachedViewDidMove:) name:NSViewFrameDidChangeNotification object:aView];
-    aView = [aView superview];
-  }
+  [self configureNotifications:view];
 
   self.attachedToView = view;
   self.preferredEdge = edge;
-  self.popoverType = type;
-  
-  NSView *contentView = self.contentViewController.view;
-  NSRect contentRect = [contentView frame];
-  if (type == BCPopOverTypeMenu)
-    contentRect = NSInsetRect(contentRect, 0, -3);
-  
-  self.window = [BCPopoverWindow attachedWindowWithView:contentView frame:contentRect];
 
-  NSRect popoverWindowFrame = [self popoverWindowFrame];
-  id <BCPopoverDelegate> delegate = self.delegate;
-  if ([delegate respondsToSelector:@selector(popover:adjustInitialWindowFrame:)]) {
-    popoverWindowFrame = [delegate popover:self adjustInitialWindowFrame:popoverWindowFrame];
-  }
-  [self.window setFrame:popoverWindowFrame display:YES];
+  self.window = [BCPopoverWindow attachedWindowWithView:self.contentViewController.view];
+
+  [self.window setFrame:[self popoverWindowFrame] display:YES];
   [self.window setReleasedWhenClosed:NO];
   
-  self.window.shouldShowArrow = type == BCPopOverTypePopOver;
   self.window.arrowPosition = [self popoverArrowPosition];
   self.window.arrowEdge = edge;
   self.window.delegate = self;
@@ -55,14 +30,39 @@
   [view.window addChildWindow:self.window ordered:NSWindowAbove];
   [self.window makeKeyAndOrderFront:nil];
 
-  NSViewController <BCPopoverContentController> *controller = self.contentViewController;
-  if ([controller respondsToSelector:@selector(popoverWindowDidShow:)])
-    [controller popoverWindowDidShow:self];
+  if ([self.contentViewController respondsToSelector:@selector(popoverWindowDidShow:)])
+    [self.contentViewController popoverWindowDidShow:self];
+}
+
+- (void)configureNotifications:(NSView *)view {
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center postNotificationName:BCPopoverWillShowNotification object:self];
+
+  [center addObserver:self selector:@selector(otherPopoverDidShow:) name:BCPopoverWillShowNotification object:nil];
+  [center addObserver:self selector:@selector(contentViewDidResizeNotification:) name:NSViewFrameDidChangeNotification object:view];
+
+  NSView *aView = view;
+  while (aView != nil) {
+    [center addObserver:self selector:@selector(attachedViewDidMove:) name:NSViewFrameDidChangeNotification object:aView];
+    aView = [aView superview];
+  }
+}
+
+- (void)contentViewDidResizeNotification:(NSNotification *)note {
+  if (self.window.parentWindow) {
+    [self.window setFrame:[self popoverWindowFrame] display:YES];
+
+    BCPopoverContentView *arrowView = self.window.contentView;
+    NSView *contentView = [[arrowView subviews] firstObject];
+    [contentView setFrame:[arrowView availableContentRect]];
+  }
 }
 
 - (void)otherPopoverDidShow:(NSNotification *)note {
   id delegate = self.delegate;
-  if (![delegate respondsToSelector:@selector(popoverShouldCloseWhenOtherPopoverOpens:otherPopover:)] || [delegate popoverShouldCloseWhenOtherPopoverOpens:self otherPopover:[note object]])
+  BOOL delegateImplemented = [delegate respondsToSelector:@selector(popoverShouldCloseWhenOtherPopoverOpens:otherPopover:)];
+  BOOL delegateReturnedYes = [delegate popoverShouldCloseWhenOtherPopoverOpens:self otherPopover:[note object]];
+  if (!delegateImplemented || delegateReturnedYes)
     [self close];
 }
 
@@ -112,10 +112,6 @@
     [self.window setFrame:popoverRect display:YES];
 }
 
-- (void)detach {
-  self.attachedToView = nil;
-}
-
 - (NSPoint)pointAtEdge:(NSRectEdge)edge ofRect:(NSRect)rect {
   NSPoint point = NSMakePoint(NSMidX(rect), NSMidY(rect));
   if (edge == NSMinYEdge)
@@ -132,58 +128,39 @@
 - (NSRect)windowRectForViewSize:(NSSize)viewSize above:(NSRect)aboveRect pointingTo:(NSPoint)point edge:(NSRectEdge)edge {
   NSRect windowRect;
   windowRect.size = viewSize;
-  BOOL isMenu = self.popoverType == BCPopOverTypeMenu;
-  NSInteger arrowSize = isMenu ? 3 : kArrowSize;
   if (edge == NSMinXEdge) {
-    windowRect.size.width  += arrowSize;
-    windowRect.origin.x     = point.x - arrowSize - viewSize.width;
+    windowRect.size.width  += kArrowSize;
+    windowRect.origin.x     = point.x - kArrowSize - viewSize.width;
     windowRect.origin.y     = point.y - viewSize.height/2;
   } else if (edge == NSMaxXEdge) {
     windowRect.origin.x     = point.x;
     windowRect.origin.y     = point.y - viewSize.height/2;
-    windowRect.size.width  += arrowSize;
+    windowRect.size.width  += kArrowSize;
   } else if (edge == NSMinYEdge) {
-    windowRect.size.height += isMenu ? arrowSize*2 : arrowSize;
-    windowRect.origin.x     = isMenu ? NSMinX(aboveRect) : NSMidX(aboveRect) - viewSize.width/2;
-    windowRect.origin.y     = isMenu ? point.y - arrowSize - viewSize.height - 2 : point.y - arrowSize - viewSize.height;
+    windowRect.size.height += kArrowSize;
+    windowRect.origin.x     = NSMidX(aboveRect) - viewSize.width/2;
+    windowRect.origin.y     = point.y - kArrowSize - viewSize.height;
   } else if (edge == NSMaxYEdge) {
-    windowRect.origin.x     = isMenu ? NSMinX(aboveRect) : NSMidX(aboveRect) - viewSize.width/2;
+    windowRect.origin.x     = NSMidX(aboveRect) - viewSize.width/2;
     windowRect.origin.y     = point.y;
-    windowRect.size.height += isMenu ? arrowSize*2 : arrowSize;;
+    windowRect.size.height += kArrowSize;;
   }
   return windowRect;
-}
-
-- (void)setContentSize:(NSSize)size {
-  if (!NSEqualSizes(size, self.referenceContentSize)) {
-    self.referenceContentSize = size;
-    [self windowDidResize:nil];
-  }
-}
-
-- (void)windowDidResize:(NSNotification *)notification {
-//  NSLog(@"%@ --> %@", NSStringFromRect(self.window.frame), NSStringFromRect([self popoverWindowFrame]));
-//
-//  [self.window setFrame:[self popoverWindowFrame] display:YES];
-//  [self.window setArrowPosition:[self popoverArrowPosition]];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
   [self.delegate popoverWillClose:self];
 }
 
-
 - (void)close {
   [[self.window parentWindow] removeChildWindow:self.window];
   [self.window close];
   self.window.delegate = nil;
-
   self.window = nil;
 }
 
 - (void)dealloc {
-  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-  [center removeObserver:self];
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end

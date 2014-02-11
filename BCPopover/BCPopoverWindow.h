@@ -4,8 +4,7 @@
 #import <Cocoa/Cocoa.h>
 
 @interface BCPopoverWindow : NSWindow
-+ (id)attachedWindowWithView:(NSView *)aView frame:(NSRect)windowRect;
++ (id)attachedWindowWithView:(NSView *)aView;
 @property (nonatomic) NSRectEdge arrowEdge;
 @property (nonatomic) CGFloat arrowPosition;
-@property(nonatomic) BOOL shouldShowArrow;
 @end

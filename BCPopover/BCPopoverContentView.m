@@ -15,9 +15,6 @@
 
 - (NSRect)availableContentRect {
   NSRect contentRect = [self bounds];
-
-  if (!self.shouldShowArrow)
-    return NSInsetRect(contentRect, 0, 3);
   
   if (self.arrowEdge == NSMaxXEdge) {
     contentRect.origin.x    += kArrowSize;
@@ -39,10 +36,7 @@
 
   if (NSEqualRects(NSZeroRect, rect))
     return nil;
-
-  if (!self.shouldShowArrow)
-    return [NSBezierPath bezierPathWithRoundedRect:[self bounds] xRadius:radius yRadius:radius];
-
+  
   CGFloat minX = NSMinX(rect);
   CGFloat maxX = NSMaxX(rect);
   CGFloat minY = NSMinY(rect);

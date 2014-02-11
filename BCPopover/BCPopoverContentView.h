@@ -10,7 +10,6 @@
 
 @property (nonatomic) NSRectEdge arrowEdge;
 @property (nonatomic) CGFloat arrowPosition;
-@property (nonatomic) BOOL shouldShowArrow;
 
 - (NSRect)availableContentRect;
 @end

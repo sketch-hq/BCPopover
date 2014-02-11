@@ -7,16 +7,14 @@
 
 @implementation BCPopoverWindow
 
-+ (id)attachedWindowWithView:(NSView *)aView frame:(NSRect)windowRect {
-  BCPopoverWindow *window = [[self alloc] initWithContentRect:windowRect];
++ (id)attachedWindowWithView:(NSView *)aView {
+  BCPopoverWindow *window = [[self alloc] initWithContentRect:[aView frame]];
 
   BCPopoverContentView *arrowView = [[BCPopoverContentView alloc] initWithFrame:[(NSView *)[window contentView] frame]];
   [window setContentView:arrowView];
   [aView setFrameOrigin:NSZeroPoint];
   [window setAcceptsMouseMovedEvents:YES];
   [arrowView addSubview:aView];
-
-  [[NSNotificationCenter defaultCenter] addObserver:window selector:@selector(contentViewDidResizeNotification:) name:NSViewFrameDidChangeNotification object:aView];
 
   return window;
 }
@@ -34,27 +32,6 @@
 - (void)resignMainWindow {
   [super resignMainWindow];
   [self close];
-}
-
-- (void)contentViewDidResizeNotification:(NSNotification *)note {
-  if (!self.parentWindow)
-    return;
-
-  BCPopoverContentView *arrowView = self.contentView;
-  NSRect arrowFrame = [arrowView frame];
-  NSRect arrowAvailableRect = [arrowView availableContentRect];
-
-  NSView *contentView = [[arrowView subviews] firstObject];
-  NSRect contentRect = [contentView frame];
-  contentRect.size.width += NSWidth(arrowFrame) - NSWidth(arrowAvailableRect);
-  contentRect.size.height += NSHeight(arrowFrame) - NSHeight(arrowAvailableRect);
-  
-  NSRect windowRect = [self frame];
-  windowRect.size = contentRect.size;
-  [self setFrame:windowRect display:YES];
-  [self setFrame:[(id)self.delegate popoverWindowFrame] display:YES];
-  
-  [contentView setFrame:[arrowView availableContentRect]];
 }
 
 - (BOOL)canBecomeKeyWindow {
@@ -89,19 +66,6 @@
 - (void)setArrowPosition:(CGFloat)position {
   if (self.arrowPosition != position) {
     self.arrowView.arrowPosition = position;
-    [self.arrowView setNeedsDisplay:YES];
-  }
-}
-
-@dynamic shouldShowArrow;
-
-- (BOOL)shouldShowArrow {
-  return self.arrowView.shouldShowArrow;
-}
-
-- (void)setShouldShowArrow:(BOOL)shouldShowArrow {
-  if (self.shouldShowArrow != shouldShowArrow) {
-    self.arrowView.shouldShowArrow = shouldShowArrow;
     [self.arrowView setNeedsDisplay:YES];
   }
 }
