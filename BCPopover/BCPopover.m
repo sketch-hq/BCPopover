@@ -52,7 +52,7 @@
   [center postNotificationName:BCPopoverWillShowNotification object:self];
 
   [center addObserver:self selector:@selector(otherPopoverDidShow:) name:BCPopoverWillShowNotification object:nil];
-  [center addObserver:self selector:@selector(contentViewDidResizeNotification:) name:NSViewFrameDidChangeNotification object:view];
+  [center addObserver:self selector:@selector(contentViewDidResizeNotification:) name:NSViewFrameDidChangeNotification object:self.contentViewController.view];
 
   NSView *aView = view;
   while (aView != nil) {
