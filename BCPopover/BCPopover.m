@@ -23,7 +23,7 @@
   if ([self.contentViewController respondsToSelector:@selector(setMaximumAvailableHeight:forPopover:)]) {
 
     NSRect rect = [self screenAnchorRect];
-    NSRect screenRect = [[NSScreen mainScreen] visibleFrame];
+    NSRect screenRect = [self screenFrame];
     NSInteger maxAvailableHeight = 0;
     if (self.preferredEdge == NSMinYEdge)
       maxAvailableHeight = (NSInteger) NSMinY(rect);
@@ -88,14 +88,20 @@
     return (point.y - NSMinY(windowRect)) / NSHeight(windowRect);
 }
 
+- (NSRect)screenFrame {
+  NSRect rect = [[NSScreen mainScreen] frame];
+  rect.size.height -= 22; //subtrac the menu, but not the dock!
+  return rect;
+}
+
 - (NSRect)popoverWindowFrame {
   NSPoint point = [self attachToPointInScreenCoordinates];
   if (!NSEqualPoints(point, NSZeroPoint)) {
     NSRect windowRect = [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
-    if (NSContainsRect([[NSScreen mainScreen] visibleFrame], windowRect))
+    if (NSContainsRect([self screenFrame], windowRect))
       return windowRect;
     else
-      return NSIntersectionRect(windowRect, [[NSScreen mainScreen] visibleFrame]);
+      return NSIntersectionRect(windowRect, [self screenFrame]);
   } else
     return NSZeroRect;
 }
