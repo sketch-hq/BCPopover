@@ -47,6 +47,10 @@
     [self.contentViewController popoverWindowDidShow:self];
 }
 
+- (void)move {
+  [self.window setFrame:[self popoverWindowFrame] display:YES];
+}
+
 - (void)configureNotifications:(NSView *)view {
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:BCPopoverWillShowNotification object:self];

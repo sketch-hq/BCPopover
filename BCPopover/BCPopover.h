@@ -15,6 +15,7 @@ static NSString *const BCPopoverWillShowNotification = @"BCPopoverWillShowNotifi
 
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge;
 - (void)close;
+- (void)move;
 
 - (NSRect)popoverWindowFrame;
 
