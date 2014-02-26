@@ -119,7 +119,7 @@
 
 - (NSPoint)attachToPointInScreenCoordinates {
   if (self.attachedToView) {
-    NSRect screenRect = [self.attachedToView convertRect:[self.attachedToView bounds] toView:nil];
+    NSRect screenRect = NSInsetRect([self.attachedToView convertRect:[self.attachedToView bounds] toView:nil], -6, -6);
     NSPoint pointAtEdge = [self pointAtEdge:self.preferredEdge ofRect:screenRect];
     return [self.attachedToView.window convertBaseToScreen:pointAtEdge];
   } else {
