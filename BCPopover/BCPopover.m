@@ -6,7 +6,6 @@
 #import "BCPopoverContentController.h"
 
 @interface BCPopover ()
-@property(nonatomic, strong) NSView *attachedToView;
 @property(nonatomic) NSRectEdge preferredEdge;
 @end
 
