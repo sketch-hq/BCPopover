@@ -41,6 +41,7 @@
 
   [view.window addChildWindow:self.window ordered:NSWindowAbove];
   [self.window makeKeyAndOrderFront:nil];
+  [self.window makeFirstResponder:self.window.contentView];
 
   if ([self.contentViewController respondsToSelector:@selector(popoverWindowDidShow:)])
     [self.contentViewController popoverWindowDidShow:self];

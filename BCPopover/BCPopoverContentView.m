@@ -13,6 +13,22 @@
   [[self backgroundPath] fill];
 }
 
+- (void)keyDown:(NSEvent *)theEvent {
+  [self interpretKeyEvents:[NSArray arrayWithObject:theEvent]];
+}
+
+- (void)doCommandBySelector:(SEL)aSelector {
+  [super doCommandBySelector:aSelector];
+}
+
+- (void)cancelOperation:(id)sender {
+  [self.window close];
+}
+
+- (BOOL)canBecomeKeyView {
+  return YES;
+}
+
 - (NSRect)availableContentRect {
   NSRect contentRect = [self bounds];
   
