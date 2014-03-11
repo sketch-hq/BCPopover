@@ -8,6 +8,7 @@
 
 @interface BCPopoverContentView : NSView
 
+@property (nonatomic, copy) NSColor *backgroundColor;
 @property (nonatomic) NSRectEdge arrowEdge;
 @property (nonatomic) CGFloat arrowPosition;
 
