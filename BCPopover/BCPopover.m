@@ -11,6 +11,13 @@
 
 @implementation BCPopover
 
+- (id)init {
+  self = [super init];
+  if (self)
+    self.constrainToScreenSize = YES;
+  return self;
+}
+
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge {
   [self configureNotifications:view];
 
@@ -18,20 +25,7 @@
   self.preferredEdge = edge;
 
   self.window = [BCPopoverWindow attachedWindowWithView:self.contentViewController.view];
-
-  if ([self.contentViewController respondsToSelector:@selector(setMaximumAvailableHeight:forPopover:)]) {
-
-    NSRect rect = [self screenAnchorRect];
-    NSRect screenRect = [self screenFrame];
-    NSInteger maxAvailableHeight = 0;
-    if (self.preferredEdge == NSMinYEdge)
-      maxAvailableHeight = (NSInteger) NSMinY(rect);
-    else
-      maxAvailableHeight = (NSInteger) (NSMaxY(screenRect) - NSMaxY(rect));
-
-    [self.contentViewController setMaximumAvailableHeight:maxAvailableHeight forPopover:self];
-  }
-
+  
   [self.window setFrame:[self popoverWindowFrame] display:YES];
   [self.window setReleasedWhenClosed:NO];
   
@@ -68,6 +62,7 @@
 
 - (void)contentViewDidResizeNotification:(NSNotification *)note {
   if (self.window.parentWindow) {
+    NSLog(@"did resize: %@", NSStringFromRect([(NSView *)[note object] frame]));
     [self.window setFrame:[self popoverWindowFrame] display:YES];
 
     BCPopoverContentView *arrowView = self.window.contentView;
@@ -103,7 +98,7 @@
   NSPoint point = [self attachToPointInScreenCoordinates];
   if (!NSEqualPoints(point, NSZeroPoint)) {
     NSRect windowRect = [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
-    if (NSContainsRect([self screenFrame], windowRect))
+    if (NSContainsRect([self screenFrame], windowRect) || !self.constrainToScreenSize)
       return windowRect;
     else
       return NSIntersectionRect(windowRect, [self screenFrame]);

@@ -8,5 +8,4 @@
 
 @optional;
 - (void)popoverWindowDidShow:(BCPopover *)popover;
-- (void)setMaximumAvailableHeight:(NSInteger)maxHeight forPopover:(BCPopover *)popover;
 @end
