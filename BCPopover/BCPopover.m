@@ -9,7 +9,9 @@
 @property(nonatomic) NSRectEdge preferredEdge;
 @end
 
-@implementation BCPopover
+@implementation BCPopover {
+  BOOL dontSendNextPopoverWindowSizeNotification;
+}
 
 - (id)init {
   self = [super init];
@@ -67,6 +69,14 @@
     BCPopoverContentView *arrowView = self.window.contentView;
     NSView *contentView = [[arrowView subviews] firstObject];
     [contentView setFrame:[arrowView availableContentRect]];
+    
+    id <BCPopoverDelegate> delegate = self.delegate;
+    if ([delegate respondsToSelector:@selector(popoverWindowSizeDidChange:)]) {
+      dontSendNextPopoverWindowSizeNotification++;
+      if (dontSendNextPopoverWindowSizeNotification == 1)
+        [delegate popoverWindowSizeDidChange:self];
+      dontSendNextPopoverWindowSizeNotification--;
+    }
   }
 }
 

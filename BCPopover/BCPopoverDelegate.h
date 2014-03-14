@@ -7,6 +7,6 @@
 @protocol BCPopoverDelegate <NSObject>
 - (void)popoverWillClose:(BCPopover *)popover;
 @optional;
-
+- (void)popoverWindowSizeDidChange:(BCPopover *)popover;
 - (BOOL)popoverShouldCloseWhenOtherPopoverOpens:(BCPopover *)popover otherPopover:(BCPopover *)otherPopover;
 @end
