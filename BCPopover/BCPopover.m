@@ -36,7 +36,8 @@
   self.window.delegate = self;
 
   [view.window addChildWindow:self.window ordered:NSWindowAbove];
-  [self.window makeKeyAndOrderFront:nil];
+//  [self.window makeKeyAndOrderFront:nil];
+  [self.window orderFront:nil];
   if (![self.window.firstResponder isKindOfClass:[NSTextView class]])
     [self.window makeFirstResponder:self.window.contentView];
 
