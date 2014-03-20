@@ -181,10 +181,10 @@
 }
 
 - (void)close {
-  [[self.window parentWindow] removeChildWindow:self.window];
-  [self.window close];
-  self.window.delegate = nil;
-  self.window = nil;
+  NSWindow *window = self.window;
+  [[window parentWindow] removeChildWindow:self.window];
+  [window close];
+  window.delegate = nil;
 }
 
 - (void)dealloc {
