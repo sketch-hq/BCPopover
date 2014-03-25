@@ -64,6 +64,7 @@
 
 - (void)contentViewDidResizeNotification:(NSNotification *)note {
   if (self.window.parentWindow) {
+    dontSendNextPopoverWindowSizeNotification++;
     [self.window setFrame:[self popoverWindowFrame] display:YES];
 
     BCPopoverContentView *arrowView = self.window.contentView;
@@ -72,11 +73,10 @@
     
     id <BCPopoverDelegate> delegate = self.delegate;
     if ([delegate respondsToSelector:@selector(popoverWindowSizeDidChange:)]) {
-      dontSendNextPopoverWindowSizeNotification++;
       if (dontSendNextPopoverWindowSizeNotification == 1)
         [delegate popoverWindowSizeDidChange:self];
-      dontSendNextPopoverWindowSizeNotification--;
     }
+    dontSendNextPopoverWindowSizeNotification--;
   }
 }
 
