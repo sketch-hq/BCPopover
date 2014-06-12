@@ -127,7 +127,8 @@
   if (self.attachedToView) {
     NSRect screenRect = NSInsetRect([self.attachedToView convertRect:[self.attachedToView bounds] toView:nil], -6, -6);
     NSPoint pointAtEdge = [self pointAtEdge:self.preferredEdge ofRect:screenRect];
-    return [self.attachedToView.window convertBaseToScreen:pointAtEdge];
+    NSRect converted = [self.attachedToView.window convertRectToScreen:NSMakeRect(pointAtEdge.x, pointAtEdge.y, 0, 0)];
+    return converted.origin;
   } else {
     NSRect windowFrame = self.window.frame;
     return NSMakePoint(NSMinX(windowFrame), NSMaxY(windowFrame));
