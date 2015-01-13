@@ -189,6 +189,8 @@
     windowRect.origin.x     = NSMidX(aboveRect) - viewSize.width/2;
     windowRect.origin.y     = point.y;
     windowRect.size.height += kArrowSize;;
+  } else {
+    windowRect.origin = NSZeroPoint;
   }
   return windowRect;
 }
