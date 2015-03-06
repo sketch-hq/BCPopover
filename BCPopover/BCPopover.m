@@ -15,8 +15,10 @@
 
 - (id)init {
   self = [super init];
-  if (self)
+  if (self) {
     self.constrainToScreenSize = YES;
+    self.layerDependency = BCPopoverLayerDependant;
+  }
   return self;
 }
 

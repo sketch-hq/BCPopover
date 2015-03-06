@@ -6,6 +6,11 @@
 @class BCPopoverWindow;
 @protocol BCPopoverContentController;
 
+typedef NS_ENUM(NSInteger, BCPopupLayerDependency) {
+  BCPopoverLayerDependant,
+  BCPopoverLayerIndependent
+};
+
 static NSString *const BCPopoverWillShowNotification = @"BCPopoverWillShowNotification";
 
 @interface BCPopover : NSObject <NSWindowDelegate>
@@ -14,6 +19,8 @@ static NSString *const BCPopoverWillShowNotification = @"BCPopoverWillShowNotifi
 @property (nonatomic, strong) BCPopoverWindow *window;
 @property (nonatomic, strong) NSView *attachedToView;
 @property (nonatomic) BOOL constrainToScreenSize;
+@property (nonatomic) BCPopupLayerDependency layerDependency;
+
 
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge;
 - (void)close;
