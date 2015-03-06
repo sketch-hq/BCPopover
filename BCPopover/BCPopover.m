@@ -83,10 +83,26 @@
 }
 
 - (void)otherPopoverDidShow:(NSNotification *)note {
-  id delegate = self.delegate;
-  BOOL delegateImplemented = [delegate respondsToSelector:@selector(popoverShouldCloseWhenOtherPopoverOpens:otherPopover:)];
-  BOOL delegateReturnedYes = delegateImplemented && [delegate popoverShouldCloseWhenOtherPopoverOpens:self otherPopover:[note object]];
-  if (!delegateImplemented || delegateReturnedYes)
+  id<BCPopoverDelegate> delegate = self.delegate;
+  BCPopover* otherPopover = [note object];
+  
+  // the default behaviour is for the new popover to cause an existing one to hide
+  BOOL shouldClose = YES;
+
+  // the delegate of the new popover can implement popoverShouldCauseExistingPopoversToClose: to change this behaviour
+  id<BCPopoverDelegate> otherDelegate = otherPopover.delegate;
+  if ([otherDelegate respondsToSelector:@selector(popoverShouldCauseExistingPopoversToClose:)]) {
+    shouldClose = [otherDelegate popoverShouldCauseExistingPopoversToClose:otherPopover];
+  }
+
+  // delegates of the other popovers can also implement popoverShouldCloseWhenNewPopoverOpens: to prevent this in certain situations
+  if (shouldClose) {
+    if ([delegate respondsToSelector:@selector(popoverShouldCloseWhenNewPopoverOpens:newPopover:)]) {
+      shouldClose = [delegate popoverShouldCloseWhenNewPopoverOpens:self newPopover:otherPopover];
+    }
+  }
+
+  if (shouldClose)
     [self close];
 }
 
@@ -129,7 +145,8 @@
   if (self.attachedToView) {
     NSRect screenRect = NSInsetRect([self.attachedToView convertRect:[self.attachedToView bounds] toView:nil], -6, -6);
     NSPoint pointAtEdge = [self pointAtEdge:self.preferredEdge ofRect:screenRect];
-    return [self.attachedToView.window convertBaseToScreen:pointAtEdge];
+    NSRect converted = [self.attachedToView.window convertRectToScreen:NSMakeRect(pointAtEdge.x, pointAtEdge.y, 0, 0)];
+    return converted.origin;
   } else {
     NSRect windowFrame = self.window.frame;
     return NSMakePoint(NSMinX(windowFrame), NSMaxY(windowFrame));
@@ -174,6 +191,8 @@
     windowRect.origin.x     = NSMidX(aboveRect) - viewSize.width/2;
     windowRect.origin.y     = point.y;
     windowRect.size.height += kArrowSize;;
+  } else {
+    windowRect.origin = NSZeroPoint;
   }
   return windowRect;
 }
@@ -184,8 +203,15 @@
 
 - (void)close {
   NSWindow *window = self.window;
-  [[window parentWindow] removeChildWindow:self.window];
-  [window close];
+  
+  // we'll actually close next time round the event queue
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    [[window parentWindow] removeChildWindow:window];
+    [window close];
+  }];
+
+  // tell our delegate that we're going, and ignore any future delegate stuff from the native window
+  [self.delegate popoverWillClose:self];
   window.delegate = nil;
 }
 
