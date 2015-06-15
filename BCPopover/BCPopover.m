@@ -117,7 +117,7 @@
 
 - (NSRect)screenFrame {
   NSRect rect = [[NSScreen mainScreen] frame];
-  rect.size.height -= 22; //subtrac the menu, but not the dock!
+  rect.size.height -= 22; //subtract the menu, but not the dock!
   return rect;
 }
 
