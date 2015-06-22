@@ -125,8 +125,10 @@
   NSPoint point = [self attachToPointInScreenCoordinates];
   if (!NSEqualPoints(point, NSZeroPoint)) {
     NSRect windowRect = [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
-    if (NSContainsRect([self screenFrame], windowRect) || !self.constrainToScreenSize)
+    if (NSContainsRect([self screenFrame], windowRect))
       return windowRect;
+    else if (!self.constrainToScreenSize)
+      return BCRectWithMaxForAxis(windowRect, NSMaxX([self screenFrame]), BCAxisHorizontal);
     else
       return NSIntersectionRect(windowRect, [self screenFrame]);
   } else

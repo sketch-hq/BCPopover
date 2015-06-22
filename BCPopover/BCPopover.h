@@ -21,7 +21,6 @@ static NSString *const BCPopoverWillShowNotification = @"BCPopoverWillShowNotifi
 @property (nonatomic) BOOL constrainToScreenSize;
 @property (nonatomic) BCPopupLayerDependency layerDependency;
 
-
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge;
 - (void)close;
 - (void)move;
