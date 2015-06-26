@@ -56,11 +56,33 @@
 
   [center addObserver:self selector:@selector(otherPopoverDidShow:) name:BCPopoverWillShowNotification object:nil];
   [center addObserver:self selector:@selector(contentViewDidResizeNotification:) name:NSViewFrameDidChangeNotification object:self.contentViewController.view];
+  [center addObserver:self selector:@selector(attachedWindowDidMove:) name:NSWindowDidResizeNotification object:view.window];
 
   NSView *aView = view;
   while (aView != nil) {
     [center addObserver:self selector:@selector(attachedViewDidMove:) name:NSViewFrameDidChangeNotification object:aView];
     aView = [aView superview];
+  }
+}
+
+- (void)attachedWindowDidMove:(NSNotification *)note {
+  BCPopoverWindow *window = (id)self.window;
+  CGFloat arrowPosition = window.arrowPosition;
+  CGFloat newArrowPosition = [self popoverArrowPosition];
+  
+  //NSWindow doesn't invalidate its cached shadow, so we have to force it here
+  //make sure we only do it when he arrowPosition changes though as its expensive
+  //if we invaliate the shadow immediately we get a trailing one when we resize too fast
+  //if we invalidate with a delay then slow resize shows artefacts
+  //so we do both. I suspect this is because NSEvent tracking interrupts the normal refresh cycle
+  if (ABS(arrowPosition - newArrowPosition) > 0.001) {
+    window.arrowPosition = newArrowPosition;
+    window.hasShadow = NO;
+    window.hasShadow = YES;
+    BCDispatchMain(^{
+      window.hasShadow = NO;
+      window.hasShadow = YES;
+    });
   }
 }
 
@@ -138,17 +160,34 @@
 - (NSRect)screenAnchorRect {
   if (self.attachedToView) {
     NSView *anchoredView = self.attachedToView.superview;
-    return [self.attachedToView.window convertRectToScreen:[anchoredView convertRect:anchoredView.bounds toView:nil]];
+    NSWindow *window = anchoredView.window;
+    NSRect rect = [window convertRectToScreen:[anchoredView convertRect:anchoredView.bounds toView:nil]];
+    
+    NSUInteger windowMaxX = NSMaxX(window.frame);
+    if (NSMidX(rect) > windowMaxX)
+      rect = BCRectWithMidX(rect, windowMaxX);
+    
+    return rect;
   } else
     return [self.window frame];
 }
 
 - (NSPoint)attachToPointInScreenCoordinates {
   if (self.attachedToView) {
-    NSRect screenRect = NSInsetRect([self.attachedToView convertRect:[self.attachedToView bounds] toView:nil], -6, -6);
-    NSPoint pointAtEdge = [self pointAtEdge:self.preferredEdge ofRect:screenRect];
-    NSRect converted = [self.attachedToView.window convertRectToScreen:NSMakeRect(pointAtEdge.x, pointAtEdge.y, 0, 0)];
-    return converted.origin;
+    NSRect rectInWindow = NSInsetRect([self.attachedToView convertRect:[self.attachedToView bounds] toView:nil], -6, -6);
+    NSPoint pointAtEdge = [self pointAtEdge:self.preferredEdge ofRect:rectInWindow];
+    
+    NSWindow *window = self.attachedToView.window;
+    
+    NSRect converted = [window convertRectToScreen:NSMakeRect(pointAtEdge.x, pointAtEdge.y, 0, 0)];
+    pointAtEdge = converted.origin;
+    
+    NSRect windowRect = window.frame;
+    pointAtEdge.x = MAX(NSMinX(windowRect), pointAtEdge.x);
+    pointAtEdge.x = MIN(NSMaxX(windowRect), pointAtEdge.x);
+    
+    return pointAtEdge;
+    
   } else {
     NSRect windowFrame = self.window.frame;
     return NSMakePoint(NSMinX(windowFrame), NSMaxY(windowFrame));
