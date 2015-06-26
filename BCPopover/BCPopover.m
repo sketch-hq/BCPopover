@@ -145,14 +145,16 @@
 
 - (NSRect)popoverWindowFrame {
   NSPoint point = [self attachToPointInScreenCoordinates];
+  
   if (!NSEqualPoints(point, NSZeroPoint)) {
+    NSRect screenFrame = [self screenFrame];
     NSRect windowRect = [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
-    if (NSContainsRect([self screenFrame], windowRect))
+    if (NSContainsRect(screenFrame, windowRect))
       return windowRect;
-    else if (!self.constrainToScreenSize)
-      return BCRectWithMaxForAxis(windowRect, NSMaxX([self screenFrame]), BCAxisHorizontal);
+    if (!self.constrainToScreenSize)
+      return BCRectWithMaxForAxis(windowRect, NSMaxX(screenFrame), BCAxisHorizontal);
     else
-      return NSIntersectionRect(windowRect, [self screenFrame]);
+      return NSIntersectionRect(windowRect, screenFrame);
   } else
     return NSZeroRect;
 }
@@ -160,14 +162,8 @@
 - (NSRect)screenAnchorRect {
   if (self.attachedToView) {
     NSView *anchoredView = self.attachedToView.superview;
-    NSWindow *window = anchoredView.window;
-    NSRect rect = [window convertRectToScreen:[anchoredView convertRect:anchoredView.bounds toView:nil]];
-    
-    NSUInteger windowMaxX = NSMaxX(window.frame);
-    if (NSMidX(rect) > windowMaxX)
-      rect = BCRectWithMidX(rect, windowMaxX);
-    
-    return rect;
+    NSRect rect = [anchoredView.window convertRectToScreen:[anchoredView convertRect:anchoredView.bounds toView:nil]];
+    return [self ensureRectFitsInParentWindow:rect];
   } else
     return [self.window frame];
 }
@@ -180,18 +176,26 @@
     NSWindow *window = self.attachedToView.window;
     
     NSRect converted = [window convertRectToScreen:NSMakeRect(pointAtEdge.x, pointAtEdge.y, 0, 0)];
-    pointAtEdge = converted.origin;
-    
-    NSRect windowRect = window.frame;
-    pointAtEdge.x = MAX(NSMinX(windowRect), pointAtEdge.x);
-    pointAtEdge.x = MIN(NSMaxX(windowRect), pointAtEdge.x);
-    
-    return pointAtEdge;
-    
+    return [self ensureRectFitsInParentWindow:converted].origin;
   } else {
     NSRect windowFrame = self.window.frame;
     return NSMakePoint(NSMinX(windowFrame), NSMaxY(windowFrame));
   }
+}
+
+- (NSRect)ensureRectFitsInParentWindow:(NSRect)rect; {
+  NSWindow *window = self.attachedToView.window;
+
+  NSUInteger windowMaxX = NSMaxX(window.frame);
+  NSUInteger windowMinX = NSMinX(window.frame);
+  
+  if (NSMidX(rect) > windowMaxX)
+    rect = BCRectWithMidX(rect, windowMaxX);
+  if (NSMidX(rect) < windowMinX)
+    rect = BCRectWithMidX(rect, windowMinX);
+  
+  
+  return rect;
 }
 
 - (void)attachedViewDidMove:(NSNotification *)notification {
