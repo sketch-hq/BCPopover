@@ -5,6 +5,8 @@
 #import "BCPopoverContentView.h"
 #import "BCPopoverContentController.h"
 
+static const CGFloat BCPopoverAttachedViewMargin = 6;
+
 @interface BCPopover ()
 @property(nonatomic) NSRectEdge preferredEdge;
 @end
@@ -170,7 +172,7 @@
 
 - (NSPoint)attachToPointInScreenCoordinates {
   if (self.attachedToView) {
-    NSRect rectInWindow = NSInsetRect([self.attachedToView convertRect:[self.attachedToView bounds] toView:nil], -6, -6);
+    NSRect rectInWindow = CHExpandRect([self.attachedToView convertRect:[self.attachedToView bounds] toView:nil], BCPopoverAttachedViewMargin);
     NSPoint pointAtEdge = [self pointAtEdge:self.preferredEdge ofRect:rectInWindow];
     
     NSWindow *window = self.attachedToView.window;
@@ -185,17 +187,7 @@
 
 - (NSRect)ensureRectFitsInParentWindow:(NSRect)rect; {
   NSWindow *window = self.attachedToView.window;
-
-  NSUInteger windowMaxX = NSMaxX(window.frame);
-  NSUInteger windowMinX = NSMinX(window.frame);
-  
-  if (NSMidX(rect) > windowMaxX)
-    rect = BCRectWithMidX(rect, windowMaxX);
-  if (NSMidX(rect) < windowMinX)
-    rect = BCRectWithMidX(rect, windowMinX);
-  
-  
-  return rect;
+  return BCRectByEnsuringMidIsContainedInRect(rect, window.frame);
 }
 
 - (void)attachedViewDidMove:(NSNotification *)notification {
