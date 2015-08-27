@@ -18,7 +18,8 @@ static const CGFloat BCPopoverAttachedViewMargin = 6;
 - (id)init {
   self = [super init];
   if (self) {
-    self.constrainToScreenSize = YES;
+    self.shouldResizeToFitOnScreen = YES;
+    self.shouldMoveToFitOnScreen = YES;
     self.layerDependency = BCPopoverLayerDependant;
   }
   return self;
@@ -86,6 +87,10 @@ static const CGFloat BCPopoverAttachedViewMargin = 6;
       window.hasShadow = YES;
     });
   }
+  
+  id<BCPopoverDelegate> delegate = self.delegate;
+  if ([delegate respondsToSelector:@selector(popoverWindowDidMove:)])
+    [delegate popoverWindowDidMove:self];
 }
 
 - (void)contentViewDidResizeNotification:(NSNotification *)note {
@@ -150,13 +155,22 @@ static const CGFloat BCPopoverAttachedViewMargin = 6;
   
   if (!NSEqualPoints(point, NSZeroPoint)) {
     NSRect screenFrame = [self screenFrame];
+    
+    //in normal circumstances, this is the rect that our popover would take up on screen
     NSRect windowRect = [self windowRectForViewSize:[self.contentViewController.view frame].size above:[self screenAnchorRect] pointingTo:point edge:self.preferredEdge];
+    
+    //does it fit in the screen? if so; return it
     if (NSContainsRect(screenFrame, windowRect))
       return windowRect;
-    if (!self.constrainToScreenSize)
-      return BCRectWithMaxForAxis(windowRect, NSMaxX(screenFrame), BCAxisHorizontal);
-    else
+    
+    //does it not fit? if we can resize the popover; great. if not, we'll have to move it to fit within the bounds
+    if (self.shouldResizeToFitOnScreen) {
       return NSIntersectionRect(windowRect, screenFrame);
+    } else if (self.shouldMoveToFitOnScreen) {
+      return BCRectMoveRectInRect(windowRect, screenFrame);
+    } else {
+      return windowRect;
+    }
   } else
     return NSZeroRect;
 }
