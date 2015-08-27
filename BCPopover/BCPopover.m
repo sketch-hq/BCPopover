@@ -166,7 +166,7 @@ static const CGFloat BCPopoverAttachedViewMargin = 6;
       case BCPopoverScreenEdgeBehaviourResize:
         return NSIntersectionRect(windowRect, screenFrame);
       case BCPopoverScreenEdgeBehaviourMove:
-        return BCRectMoveInRect(windowRect, screenFrame);
+        return BCRectMoveIntoRect(windowRect, screenFrame);
       default:
         return windowRect;
     }
