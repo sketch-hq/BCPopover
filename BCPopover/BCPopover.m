@@ -235,6 +235,7 @@ static const CGFloat BCPopoverAttachedViewMargin = 6;
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
+  self.window.delegate = nil;
   [self.delegate popoverWillClose:self];
 }
 
@@ -253,6 +254,7 @@ static const CGFloat BCPopoverAttachedViewMargin = 6;
 }
 
 - (void)dealloc {
+  self.window.delegate = nil;
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
