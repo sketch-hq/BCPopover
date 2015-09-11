@@ -11,6 +11,13 @@ typedef NS_ENUM(NSInteger, BCPopupLayerDependency) {
   BCPopoverLayerIndependent
 };
 
+/** Specifies the behaviour the popover should have when it gets outside the edges of the screen. Should it do nothing, should it resize, or should it move itself? */
+typedef NS_ENUM(NSInteger, BCPopoverScreenEdgeBehaviour) {
+  BCPopoverScreenEdgeBehaviourNone,
+  BCPopoverScreenEdgeBehaviourResize,
+  BCPopoverScreenEdgeBehaviourMove
+};
+
 static NSString *const BCPopoverWillShowNotification = @"BCPopoverWillShowNotification";
 
 @interface BCPopover : NSObject <NSWindowDelegate>
@@ -18,7 +25,7 @@ static NSString *const BCPopoverWillShowNotification = @"BCPopoverWillShowNotifi
 @property (nonatomic, weak) id<BCPopoverDelegate> delegate;
 @property (nonatomic, strong) BCPopoverWindow *window;
 @property (nonatomic, strong) NSView *attachedToView;
-@property (nonatomic) BOOL constrainToScreenSize;
+@property (nonatomic) BCPopoverScreenEdgeBehaviour screenEdgeBehaviour;
 @property (nonatomic) BCPopupLayerDependency layerDependency;
 
 - (void)showRelativeToView:(NSView *)view preferredEdge:(NSRectEdge)edge;
